@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
+export async function GET() {
+  return POST();
+}
+
 export async function POST() {
   try {
     console.log('🔧 Force fixing draft order...');
