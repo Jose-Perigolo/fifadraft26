@@ -14,7 +14,7 @@ interface DraftPageProps {
 
 export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
   const [draft, setDraft] = useState<Draft | null>(null);
-  const [draftId, setDraftId] = useState<string | null>(null);
+  // const [draftId, setDraftId] = useState<string | null>(null); // Unused variable
   const [players, setPlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,13 +35,12 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
   
           const draftWithPlayers = {
             ...data.draft,
-            picks: data.draft.picks?.map((pick: any) => ({
+            picks: data.draft.picks?.map((pick: { playerId: number }) => ({
               ...pick,
               player: playerData.find(p => p.id === pick.playerId) || null,
             })) || [],
           };
           setDraft(draftWithPlayers);
-          setDraftId(data.draft.id);
         } else {
           // If no draft exists, create one
           const initResponse = await fetch('/api/init', { method: 'POST' });
@@ -52,13 +51,12 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
 
               const draftWithPlayers = {
                 ...data.draft,
-                picks: data.draft.picks?.map((pick: any) => ({
+                picks: data.draft.picks?.map((pick: { playerId: number }) => ({
                   ...pick,
                   player: playerData.find(p => p.id === pick.playerId) || null,
                 })) || [],
               };
               setDraft(draftWithPlayers);
-              setDraftId(data.draft.id);
             }
           }
         }
@@ -96,7 +94,7 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
         
         const draftWithPlayers = {
           ...data.draft,
-          picks: data.draft.picks?.map((pick: any) => ({
+          picks: data.draft.picks?.map((pick: { playerId: number }) => ({
             ...pick,
             player: players.find(p => p.id === pick.playerId) || null,
           })) || [],

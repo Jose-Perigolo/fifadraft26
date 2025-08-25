@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       userId,
       formation,
       positionsCount: positions.length,
-      filledPositions: positions.filter((pos: any) => pos.playerId).length
+      filledPositions: positions.filter((pos: { playerId?: number }) => pos.playerId).length
     });
 
     if (!draftId || !userId || !formation || !positions) {

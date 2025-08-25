@@ -99,7 +99,7 @@ export async function PUT(request: NextRequest) {
     await createPick(draftId, userId, playerId, draft.round, pickOrder);
 
     // Update draft progress
-    const totalPicks = picks.length + 1;
+    // const totalPicks = picks.length + 1; // Unused variable
     const participantsCount = draft.participants?.length || 8;
     
     let newTurn = draft.currentTurn + 1;

@@ -35,7 +35,7 @@ export default function PasswordChange({ user, onPasswordChanged }: PasswordChan
     try {
       const updatedUser = await changePassword(user, newPassword);
       onPasswordChanged(updatedUser);
-    } catch (error) {
+    } catch {
       setError('Falha ao alterar senha. Tente novamente.');
     }
   };

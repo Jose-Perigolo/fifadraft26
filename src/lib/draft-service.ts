@@ -258,7 +258,7 @@ export async function initializeDatabase(): Promise<void> {
 }
 
 // Formation Management
-export async function getFormation(draftId: string, userId: string): Promise<any> {
+export async function getFormation(draftId: string, userId: string): Promise<unknown> {
   try {
     const formation = await prisma.formation.findUnique({
       where: {
@@ -279,8 +279,8 @@ export async function saveFormation(
   draftId: string,
   userId: string,
   formation: string,
-  positions: any[]
-): Promise<any> {
+  positions: Record<string, unknown>[]
+): Promise<unknown> {
   try {
     console.log('🔍 Attempting to save formation:', { draftId, userId, formation, positionsCount: positions.length });
     
@@ -306,13 +306,13 @@ export async function saveFormation(
       },
       update: {
         formation,
-        positions,
+        positions: positions as any,
       },
       create: {
         userId,
         draftId,
         formation,
-        positions,
+        positions: positions as any,
       },
     });
     

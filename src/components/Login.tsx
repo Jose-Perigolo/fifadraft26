@@ -42,7 +42,7 @@ export default function Login({ onLogin }: LoginProps) {
       } else {
         setError('Senha inválida');
       }
-    } catch (error) {
+    } catch {
       setError('Falha no login. Tente novamente.');
     } finally {
       setIsLoading(false);

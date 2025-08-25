@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Player } from '@/types';
 import { filterPlayers, sortPlayers, getAvailablePlayers } from '@/utils/players';
 import PlayerCard from './PlayerCard';
@@ -38,7 +38,7 @@ export default function PlayerSelection({
 
     filtered = sortPlayers(filtered, sortBy);
     return filtered.slice(0, 50); // Limit to first 50 for performance
-  }, [allPlayers.length, availablePlayers.length, searchTerm, positionFilter, overallRange.min, overallRange.max, sortBy]);
+  }, [availablePlayers, searchTerm, positionFilter, overallRange.min, overallRange.max, sortBy]);
 
   const positions = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'ST', 'CF'];
 
