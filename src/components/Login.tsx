@@ -53,6 +53,7 @@ export default function Login({ onLogin }: LoginProps) {
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
+          <img src="/logo.svg" alt="FIFA Draft" className="h-16 w-auto mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">FIFA Draft 2026</h1>
           <p className="text-gray-600">Selecione seu usuário e digite sua senha</p>
         </div>
