@@ -1,6 +1,21 @@
 import { prisma } from './db';
 import { User, Draft } from '@/types';
 
+// Helper function to sort participants by pickOrder
+function sortParticipantsByPickOrder(draft: any): any {
+  if (draft.pickOrder && draft.pickOrder.length > 0) {
+    const sortedParticipants = draft.pickOrder
+      .map((userId: string) => draft.participants.find((p: any) => p.id === userId))
+      .filter(Boolean);
+    
+    return {
+      ...draft,
+      participants: sortedParticipants,
+    };
+  }
+  return draft;
+}
+
 // User Management
 export async function createUser(name: string, password: string): Promise<User> {
   try {
@@ -107,19 +122,7 @@ export async function getActiveDraft(): Promise<Draft | null> {
     
     if (!draft) return null;
     
-    // Sort participants according to pickOrder if available
-    if (draft.pickOrder && draft.pickOrder.length > 0) {
-      const sortedParticipants = draft.pickOrder
-        .map(userId => draft.participants.find(p => p.id === userId))
-        .filter(Boolean);
-      
-      return {
-        ...draft,
-        participants: sortedParticipants,
-      } as Draft;
-    }
-    
-    return draft as Draft;
+    return sortParticipantsByPickOrder(draft) as Draft;
   } catch (error) {
     console.error('Error getting active draft:', error);
     return null;
@@ -149,7 +152,8 @@ export async function updateDraftProgress(
         },
       },
     });
-    return draft as Draft;
+    
+    return sortParticipantsByPickOrder(draft) as Draft;
   } catch (error) {
     console.error('Error updating draft progress:', error);
     throw new Error('Failed to update draft progress');
