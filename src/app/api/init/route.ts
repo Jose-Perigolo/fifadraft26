@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
-import { initializeDatabase, createDraft, getAllUsers, addParticipantToDraft } from '@/lib/draft-service';
 import { prisma } from '@/lib/db';
 
 export async function POST() {
   try {
     console.log('🔄 Starting database initialization...');
-    
-    // Test database connection first
-    await prisma.$connect();
-    console.log('✅ Database connection successful');
     
     // Check if users already exist
     const existingUsers = await prisma.user.count();
@@ -16,13 +11,35 @@ export async function POST() {
     
     if (existingUsers === 0) {
       console.log('👥 Creating default users...');
-      // Initialize database with default users
-      await initializeDatabase();
+      
+      // Create the 8 default users
+      const defaultUsers = [
+        'Jamir', 'José', 'Jean', 'Foguin', 'Pituca', 'João', 'Leo', 'Jamal'
+      ];
+      
+      for (const name of defaultUsers) {
+        try {
+          await prisma.user.create({
+            data: {
+              name,
+              password: 'senha',
+              hasChangedPassword: false,
+              isLoggedIn: false,
+            },
+          });
+          console.log(`✅ Created user: ${name}`);
+        } catch (error) {
+          console.log(`⚠️ Error creating user ${name}:`, error);
+        }
+      }
+      
       console.log('✅ Users created successfully');
     }
 
     // Get all users
-    const users = await getAllUsers();
+    const users = await prisma.user.findMany({
+      orderBy: { name: 'asc' },
+    });
     console.log(`👥 Retrieved ${users.length} users`);
 
     // Check if draft already exists
@@ -37,7 +54,15 @@ export async function POST() {
     } else {
       console.log('📋 Creating new draft...');
       // Create a new draft if none exists
-      draft = await createDraft("FIFA Draft 2026");
+      draft = await prisma.draft.create({
+        data: {
+          name: "FIFA Draft 2026",
+          currentTurn: 0,
+          round: 1,
+          totalRounds: 16,
+          isComplete: false,
+        },
+      });
       console.log('✅ Draft created successfully');
     }
 
@@ -45,10 +70,33 @@ export async function POST() {
     console.log('👥 Adding users to draft...');
     for (const user of users) {
       try {
-        await addParticipantToDraft(draft.id, user.id);
-        console.log(`✅ Added ${user.name} to draft`);
+        // Check if user is already in draft
+        const existingParticipant = await prisma.draft.findFirst({
+          where: {
+            id: draft.id,
+            participants: {
+              some: {
+                id: user.id
+              }
+            }
+          }
+        });
+        
+        if (!existingParticipant) {
+          await prisma.draft.update({
+            where: { id: draft.id },
+            data: {
+              participants: {
+                connect: { id: user.id },
+              },
+            },
+          });
+          console.log(`✅ Added ${user.name} to draft`);
+        } else {
+          console.log(`ℹ️ User ${user.name} already in draft`);
+        }
       } catch (error) {
-        console.log(`⚠️ User ${user.name} might already be in draft:`, error);
+        console.log(`⚠️ Error adding ${user.name} to draft:`, error);
       }
     }
 
@@ -71,7 +119,5 @@ export async function POST() {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
