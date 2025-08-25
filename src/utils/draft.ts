@@ -23,6 +23,9 @@ export const getCurrentUser = (draft: Draft): User | null => {
   
   if (draft.round % 2 === 0) {
     // Even round: reverse the order
+    // currentTurn 0 should map to last player (index 7)
+    // currentTurn 1 should map to second-to-last player (index 6)
+    // etc.
     actualTurn = draft.participants.length - 1 - draft.currentTurn;
   }
   
