@@ -28,7 +28,14 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
             const data = await response.json();
             if (data.formation) {
               setFormation(data.formation.formation);
-              setPositions(data.formation.positions);
+              // Normalize loaded positions to ensure consistent property order
+              const normalizedPositions = data.formation.positions.map((pos: any) => ({
+                position: pos.position,
+                x: pos.x,
+                y: pos.y,
+                playerId: pos.playerId || undefined
+              }));
+              setPositions(normalizedPositions);
             } else {
               // Initialize with default 4-4-2 formation
               const defaultPositions = [
@@ -80,14 +87,22 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
     setPositions(newPositions);
     setIsSaving(true);
     
+    // Normalize positions to ensure consistent property order
+    const normalizedPositions = newPositions.map(pos => ({
+      position: pos.position,
+      x: pos.x,
+      y: pos.y,
+      playerId: pos.playerId || null
+    }));
+    
     // Save formation to database
     try {
       console.log('💾 Saving formation to database...', {
         draftId: draft.id,
         userId: currentUser.id,
         formation: newFormation,
-        positionsCount: newPositions.length,
-        filledPositions: newPositions.filter(pos => pos.playerId).length
+        positionsCount: normalizedPositions.length,
+        filledPositions: normalizedPositions.filter(pos => pos.playerId).length
       });
       
       const response = await fetch('/api/formations', {
@@ -99,7 +114,7 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
           draftId: draft.id,
           userId: currentUser.id,
           formation: newFormation,
-          positions: newPositions,
+          positions: normalizedPositions,
         }),
       });
       
