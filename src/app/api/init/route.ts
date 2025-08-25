@@ -40,11 +40,20 @@ export async function POST() {
       console.log('✅ Users created successfully');
     }
 
-    // Get all users
-    const users = await prisma.user.findMany({
-      orderBy: { name: 'asc' },
-    });
+    // Get all users in the correct draft order
+    const defaultUserOrder = [
+      'Jamal', 'Leo', 'Jean', 'João Luiz', 'José', 'Pituca', 'Foguin', 'Jamir'
+    ];
+    
+    const users = await prisma.user.findMany();
     console.log(`👥 Retrieved ${users.length} users`);
+    
+    // Sort users according to the default draft order
+    const sortedUsers = defaultUserOrder.map(name => 
+      users.find(user => user.name === name)
+    ).filter(Boolean);
+    
+    console.log('📋 Users in draft order:', sortedUsers.map(u => u?.name));
 
     // Check if draft already exists
     const existingDraft = await prisma.draft.findFirst({
@@ -72,7 +81,7 @@ export async function POST() {
 
     // Add all users as participants if not already added
     console.log('👥 Adding users to draft...');
-    for (const user of users) {
+    for (const user of sortedUsers) {
       try {
         // Check if user is already in draft
         const existingParticipant = await prisma.draft.findFirst({
