@@ -84,6 +84,8 @@ export async function POST() {
     // Add all users as participants if not already added
     console.log('👥 Adding users to draft...');
     for (const user of sortedUsers) {
+      if (!user) continue; // Skip if user is undefined
+      
       try {
         // Check if user is already in draft
         const existingParticipant = await prisma.draft.findFirst({
