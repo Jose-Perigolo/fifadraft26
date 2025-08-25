@@ -38,7 +38,7 @@ export default function PlayerSelection({
 
     filtered = sortPlayers(filtered, sortBy);
     return filtered.slice(0, 50); // Limit to first 50 for performance
-  }, [availablePlayers, searchTerm, positionFilter, overallRange.min, overallRange.max, sortBy]);
+  }, [availablePlayers, searchTerm, positionFilter, overallRange.min, overallRange.max, sortBy, allPlayers.length]);
 
   const positions = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'ST', 'CF'];
 

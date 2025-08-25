@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+import { execSync } from 'child_process';
 
 export async function POST() {
   try {
     console.log('🔄 Starting database migration...');
-    
-    // Push the schema to the database
-    const { execSync } = require('child_process');
     
     // Run Prisma db push
     execSync('npx prisma db push', {
