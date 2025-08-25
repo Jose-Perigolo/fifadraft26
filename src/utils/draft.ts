@@ -1,7 +1,7 @@
 import { User, Draft } from '@/types';
 
 export const DEFAULT_USER_NAMES = [
-  'Jamir', 'José', 'Jean', 'Foguin', 'Pituca', 'João', 'Leo', 'Jamal'
+  'Jamir', 'José', 'Jean', 'Foguin', 'Pituca', 'João Luiz', 'Leo', 'Jamal'
 ];
 
 export const createInitialDraft = (): Draft => ({
