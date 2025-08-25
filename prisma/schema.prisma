@@ -34,6 +34,7 @@ model Draft {
   round           Int      @default(1)
   totalRounds     Int      @default(16)
   isComplete      Boolean  @default(false)
+  pickOrder       String[] @default([]) // Array of user IDs in draft order
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

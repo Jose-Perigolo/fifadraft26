@@ -98,8 +98,7 @@ export async function PUT(request: NextRequest) {
     // Create the pick
     await createPick(draftId, userId, playerId, draft.round, pickOrder);
 
-    // Update draft progress
-    // const totalPicks = picks.length + 1; // Unused variable
+    // Update draft progress - Snake Draft Logic
     const participantsCount = draft.participants?.length || 8;
     
     let newTurn = draft.currentTurn + 1;
@@ -108,13 +107,21 @@ export async function PUT(request: NextRequest) {
 
     // Check if we've completed a round (everyone has picked)
     if (newTurn >= participantsCount) {
-      newTurn = 0; // Reset to first player
       newRound = draft.round + 1; // Move to next round
       
       // Check if we've completed all rounds
       if (newRound > draft.totalRounds) {
         isComplete = true;
         newRound = draft.totalRounds; // Keep it at the last round
+      } else {
+        // Snake draft: reverse order for even rounds
+        if (newRound % 2 === 0) {
+          // Even round: reverse order (8→7→6→5→4→3→2→1)
+          newTurn = participantsCount - 1; // Start from last player
+        } else {
+          // Odd round: normal order (1→2→3→4→5→6→7→8)
+          newTurn = 0; // Start from first player
+        }
       }
     }
 

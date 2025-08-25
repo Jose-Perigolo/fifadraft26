@@ -104,7 +104,22 @@ export async function getActiveDraft(): Promise<Draft | null> {
         },
       },
     });
-    return draft as Draft | null;
+    
+    if (!draft) return null;
+    
+    // Sort participants according to pickOrder if available
+    if (draft.pickOrder && draft.pickOrder.length > 0) {
+      const sortedParticipants = draft.pickOrder
+        .map(userId => draft.participants.find(p => p.id === userId))
+        .filter(Boolean);
+      
+      return {
+        ...draft,
+        participants: sortedParticipants,
+      } as Draft;
+    }
+    
+    return draft as Draft;
   } catch (error) {
     console.error('Error getting active draft:', error);
     return null;

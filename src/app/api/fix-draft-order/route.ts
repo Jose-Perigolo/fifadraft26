@@ -64,10 +64,12 @@ export async function POST() {
       console.log(`✅ Added ${user!.name} to draft in correct position`);
     }
     
-    // Reset currentTurn to 0 (Jamal's turn)
+    // Update pickOrder with correct user IDs
+    const pickOrderUserIds = sortedUsers.map(user => user!.id);
     await prisma.draft.update({
       where: { id: draft.id },
       data: {
+        pickOrder: pickOrderUserIds,
         currentTurn: 0,
         round: 1,
         isComplete: false

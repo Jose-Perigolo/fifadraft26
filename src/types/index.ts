@@ -39,6 +39,7 @@ export interface Draft {
   round: number;
   totalRounds: number;
   isComplete: boolean;
+  pickOrder?: string[]; // Array of user IDs in draft order
   createdAt?: Date;
   updatedAt?: Date;
   participants?: User[];

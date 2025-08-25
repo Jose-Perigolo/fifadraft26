@@ -16,12 +16,33 @@ export const createInitialDraft = (): Draft => ({
 });
 
 export const getCurrentUser = (draft: Draft): User | null => {
-  if (!draft.participants || draft.currentTurn >= draft.participants.length) return null;
-  return draft.participants[draft.currentTurn];
+  if (!draft.participants || draft.participants.length === 0) return null;
+  
+  // Snake draft logic: reverse order for even rounds
+  let actualTurn = draft.currentTurn;
+  
+  if (draft.round % 2 === 0) {
+    // Even round: reverse the order
+    actualTurn = draft.participants.length - 1 - draft.currentTurn;
+  }
+  
+  if (actualTurn >= draft.participants.length) return null;
+  return draft.participants[actualTurn];
 };
 
 export const isUserTurn = (draft: Draft, userId: string): boolean => {
-  const currentUser = getCurrentUser(draft);
+  if (!draft.participants || draft.participants.length === 0) return false;
+  
+  // Snake draft logic: reverse order for even rounds
+  let actualTurn = draft.currentTurn;
+  
+  if (draft.round % 2 === 0) {
+    // Even round: reverse the order
+    actualTurn = draft.participants.length - 1 - draft.currentTurn;
+  }
+  
+  if (actualTurn >= draft.participants.length) return false;
+  const currentUser = draft.participants[actualTurn];
   return currentUser?.id === userId;
 };
 
@@ -82,4 +103,8 @@ export const getDraftProgress = (draft: Draft) => {
     totalPicks,
     percentage: Math.round((completedPicks / totalPicks) * 100),
   };
+};
+
+export const getRoundDirection = (round: number): string => {
+  return round % 2 === 0 ? 'Reverso' : 'Normal';
 };

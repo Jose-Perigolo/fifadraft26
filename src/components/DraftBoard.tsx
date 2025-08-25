@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Draft, User, FormationPosition, Player } from '@/types';
-import { getCurrentUser, getDraftProgress } from '@/utils/draft';
+import { getCurrentUser, getDraftProgress, getRoundDirection } from '@/utils/draft';
 import FootballField from './FootballField';
 import PlayerCard from './PlayerCard';
 
@@ -76,6 +76,7 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
   const currentTurnUser = getCurrentUser(draft);
   const progress = getDraftProgress(draft);
   const isUserTurn = currentTurnUser?.id === currentUser.id;
+  const roundDirection = getRoundDirection(draft.round);
 
   const userPlayers = draft.picks
     ?.filter(pick => pick.userId === currentUser.id)
@@ -169,7 +170,7 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-gray-900">Quadro do Draft</h2>
               <div className="text-right">
-                <div className="text-sm text-gray-600">Rodada {draft.round} de {draft.totalRounds}</div>
+                <div className="text-sm text-gray-600">Rodada {draft.round} de {draft.totalRounds} ({roundDirection})</div>
                 <div className="text-lg font-semibold text-gray-900">
                   {progress.completedPicks}/{progress.totalPicks} escolhas concluídas
                 </div>

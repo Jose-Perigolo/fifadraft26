@@ -67,6 +67,7 @@ export async function POST() {
     } else {
       console.log('📋 Creating new draft...');
       // Create a new draft if none exists
+      const pickOrderUserIds = sortedUsers.map(user => user!.id);
       draft = await prisma.draft.create({
         data: {
           name: "FIFA Draft 2026",
@@ -74,6 +75,7 @@ export async function POST() {
           round: 1,
           totalRounds: 16,
           isComplete: false,
+          pickOrder: pickOrderUserIds,
         },
       });
       console.log('✅ Draft created successfully');
