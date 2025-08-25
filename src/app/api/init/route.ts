@@ -16,9 +16,9 @@ export async function POST() {
     if (existingUsers === 0) {
       console.log('👥 Creating default users...');
       
-      // Create the 8 default users
+      // Create the 8 default users in the new draft order
       const defaultUsers = [
-        'Jamir', 'José', 'Jean', 'Foguin', 'Pituca', 'João', 'Leo', 'Jamal'
+        'Jamal', 'Leo', 'Jean', 'João Luiz', 'José', 'Pituca', 'Foguin', 'Jamir'
       ];
       
       for (const name of defaultUsers) {
