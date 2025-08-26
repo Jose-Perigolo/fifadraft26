@@ -1,9 +1,29 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Don't render on mobile
+  if (isMobile) {
+    return null;
+  }
 
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">

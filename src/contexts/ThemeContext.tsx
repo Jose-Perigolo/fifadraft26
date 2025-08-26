@@ -14,19 +14,41 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
   const [initialized, setInitialized] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Initialize theme from localStorage
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Initialize theme from localStorage or system preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('fifa-draft-theme') as Theme;
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-      setTheme(savedTheme);
+    
+    if (isMobile) {
+      // On mobile, use system theme preference
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setTheme(systemTheme);
+      localStorage.setItem('fifa-draft-theme', systemTheme);
     } else {
-      // Default to light theme
-      setTheme('light');
-      localStorage.setItem('fifa-draft-theme', 'light');
+      // On desktop, use saved theme or default to light
+      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+        setTheme(savedTheme);
+      } else {
+        setTheme('light');
+        localStorage.setItem('fifa-draft-theme', 'light');
+      }
     }
     setInitialized(true);
-  }, []);
+  }, [isMobile]);
 
   // Apply theme changes
   useEffect(() => {
@@ -46,6 +68,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     localStorage.setItem('fifa-draft-theme', theme);
   }, [theme, initialized]);
+
+  // Listen for system theme changes on mobile
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      const newTheme = e.matches ? 'dark' : 'light';
+      setTheme(newTheme);
+      localStorage.setItem('fifa-draft-theme', newTheme);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [isMobile]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
