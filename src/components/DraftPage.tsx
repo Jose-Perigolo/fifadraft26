@@ -6,6 +6,8 @@ import { canUserPick } from '@/utils/draft';
 import { loadPlayers } from '@/utils/players';
 import DraftBoard from './DraftBoard';
 import PlayerSelection from './PlayerSelection';
+import ThemeToggle from './ThemeToggle';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface DraftPageProps {
   currentUser: User;
@@ -13,6 +15,7 @@ interface DraftPageProps {
 }
 
 export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
+  const { theme } = useTheme();
   const [draft, setDraft] = useState<Draft | null>(null);
   // const [draftId, setDraftId] = useState<string | null>(null); // Unused variable
   const [players, setPlayers] = useState<Player[]>([]);
@@ -116,54 +119,121 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700 flex items-center justify-center">
-        <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading FIFA Draft 2026...</p>
+      <>
+        <ThemeToggle />
+        <div style={{
+          minHeight: '100vh',
+          background: theme === 'dark' 
+            ? 'linear-gradient(to bottom right, #1f2937, #111827, #0f172a)'
+            : 'linear-gradient(to bottom right, #065f46, #047857, #059669)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div className="text-center text-white">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <p>Inicializando FIFA Draft 2026...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700 flex items-center justify-center">
-        <div className="text-center text-white">
-          <p className="text-red-300 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-white text-green-800 px-4 py-2 rounded-md hover:bg-gray-100"
-          >
-            Retry
-          </button>
+      <>
+        <ThemeToggle />
+        <div style={{
+          minHeight: '100vh',
+          background: theme === 'dark' 
+            ? 'linear-gradient(to bottom right, #1f2937, #111827, #0f172a)'
+            : 'linear-gradient(to bottom right, #065f46, #047857, #059669)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div className="text-center text-white">
+            <p className="text-red-300 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
+                  : 'bg-white text-green-800 hover:bg-gray-100'
+              }`}
+            >
+              Retry
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700">
-      {/* Header */}
-      <header className="bg-white shadow-lg">
+    <>
+      <ThemeToggle />
+      <div style={{
+        minHeight: '100vh',
+        background: theme === 'dark' 
+          ? 'linear-gradient(to bottom right, #1f2937, #111827, #0f172a)'
+          : 'linear-gradient(to bottom right, #065f46, #047857, #059669)'
+      }}>
+        {/* Header */}
+        <header style={{
+          backgroundColor: 'var(--bg-primary)',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+        }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <img src="/trophy_logo.svg" alt="FIFA Draft" className="h-12 w-auto" />
+              <img 
+                src="/trophy_logo.svg" 
+                alt="FIFA Draft" 
+                style={{
+                  height: '48px',
+                  width: 'auto',
+                  filter: theme === 'dark' ? 'invert(1)' : 'none'
+                }}
+              />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">FIFA Draft 2026</h1>
-                <p className="text-sm text-gray-600">Bem vindo, {currentUser.name}</p>
+                <h1 style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: 'var(--text-primary)'
+                }}>FIFA Draft 2026</h1>
+                <p style={{
+                  fontSize: '14px',
+                  color: 'var(--text-secondary)'
+                }}>Bem vindo, {currentUser.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-sm text-gray-600">Your Team</div>
-                <div className="font-semibold text-gray-900">
+                <div style={{
+                  fontSize: '14px',
+                  color: 'var(--text-secondary)'
+                }}>Your Team</div>
+                <div style={{
+                  fontWeight: '600',
+                  color: 'var(--text-primary)'
+                }}>
                   {draft?.picks?.filter(pick => pick.userId === currentUser.id).length || 0}/16 players
                 </div>
               </div>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                style={{
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
               >
                 Sair
               </button>
@@ -173,8 +243,16 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <main style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '32px 16px'
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '32px'
+        }}>
           {/* Draft Board */}
           <div>
             <DraftBoard draft={draft} currentUser={currentUser} />
@@ -193,14 +271,29 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
 
         {/* Draft Complete Message */}
         {draft?.isComplete && (
-          <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-            <h2 className="text-2xl font-bold text-green-800 mb-2">Draft Complete!</h2>
-            <p className="text-green-700">
+          <div style={{
+            marginTop: '32px',
+            backgroundColor: '#ecfdf5',
+            border: '1px solid #10b981',
+            borderRadius: '8px',
+            padding: '24px',
+            textAlign: 'center'
+          }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#047857',
+              marginBottom: '8px'
+            }}>Draft Complete!</h2>
+            <p style={{
+              color: '#065f46'
+            }}>
               All teams have been assembled. The FIFA Draft 2026 is ready to begin!
             </p>
           </div>
         )}
       </main>
-    </div>
+      </div>
+    </>
   );
 }

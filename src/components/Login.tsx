@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { User } from '@/types';
 import { DEFAULT_USER_NAMES, authenticateUser } from '@/utils/draft';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface LoginProps {
   onLogin: (user: User) => void;
 }
 
 export default function Login({ onLogin }: LoginProps) {
+  const { theme } = useTheme();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -37,12 +39,13 @@ export default function Login({ onLogin }: LoginProps) {
 
     try {
       const authenticatedUser = await authenticateUser(selectedUser.name, password);
+      
       if (authenticatedUser) {
         onLogin(authenticatedUser);
       } else {
         setError('Senha inválida');
       }
-    } catch {
+    } catch (error) {
       setError('Falha no login. Tente novamente.');
     } finally {
       setIsLoading(false);
@@ -50,33 +53,86 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div style={{
+      minHeight: '100vh',
+      background: theme === 'dark' 
+        ? 'linear-gradient(to bottom right, #1f2937, #111827, #0f172a)'
+        : 'linear-gradient(to bottom right, #065f46, #047857, #059669)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px'
+    }}>
+      <div style={{
+        backgroundColor: 'var(--bg-primary)',
+        borderRadius: '8px',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        padding: '32px',
+        width: '100%',
+        maxWidth: '384px'
+      }}>
         <div className="text-center mb-8">
-          <img src="/trophy_logo.svg" alt="FIFA Draft" className="h-16 w-auto mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">FIFA Draft 2026</h1>
-          <p className="text-gray-600">Selecione seu usuário e digite sua senha</p>
+          <img 
+            src="/trophy_logo.svg" 
+            alt="FIFA Draft" 
+            style={{
+              height: '64px',
+              width: 'auto',
+              margin: '0 auto 16px',
+              filter: theme === 'dark' ? 'invert(1)' : 'none'
+            }}
+          />
+          <h1 style={{
+            fontSize: '30px',
+            fontWeight: 'bold',
+            color: 'var(--text-primary)',
+            marginBottom: '8px'
+          }}>FIFA Draft 2026</h1>
+          <p style={{
+            color: 'var(--text-secondary)'
+          }}>Selecione seu usuário e digite sua senha</p>
         </div>
 
         <div className="space-y-6">
           {/* User Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--text-primary)',
+              marginBottom: '12px'
+            }}>
               Selecione Seu Usuário
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '12px'
+            }}>
               {DEFAULT_USER_NAMES.map((name) => (
                 <button
                   key={name}
                   onClick={() => handleUserSelect({ id: '', name, password: '', hasChangedPassword: false, isLoggedIn: false })}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    selectedUser?.name === name
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                  }`}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: `2px solid ${selectedUser?.name === name ? '#10b981' : 'var(--border-color)'}`,
+                    backgroundColor: selectedUser?.name === name 
+                      ? (theme === 'dark' ? '#064e3b' : '#ecfdf5') 
+                      : 'var(--bg-secondary)',
+                    color: selectedUser?.name === name 
+                      ? (theme === 'dark' ? '#6ee7b7' : '#047857') 
+                      : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
                 >
-                  <div className="font-medium">{name}</div>
-                  <div className="text-xs text-gray-500">
+                  <div style={{ fontWeight: '500' }}>{name}</div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: 'var(--text-secondary)'
+                  }}>
                     Clique para entrar
                   </div>
                 </button>
@@ -87,7 +143,13 @@ export default function Login({ onLogin }: LoginProps) {
           {/* Password Input */}
           {selectedUser && (
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: 'var(--text-primary)',
+                marginBottom: '8px'
+              }}>
                 Senha para {selectedUser.name}
               </label>
               <input
@@ -96,7 +158,15 @@ export default function Login({ onLogin }: LoginProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: `1px solid var(--border-color)`,
+                  borderRadius: '6px',
+                  outline: 'none',
+                  color: 'var(--text-primary)',
+                  backgroundColor: 'var(--bg-primary)'
+                }}
                 placeholder="Digite sua senha"
               />
             </div>
@@ -104,7 +174,14 @@ export default function Login({ onLogin }: LoginProps) {
 
           {/* Error Message */}
           {error && (
-            <div className="text-red-600 text-sm text-center bg-red-50 p-3 rounded-md">
+            <div style={{
+              color: '#dc2626',
+              fontSize: '14px',
+              textAlign: 'center',
+              backgroundColor: '#fef2f2',
+              padding: '12px',
+              borderRadius: '6px'
+            }}>
               {error}
             </div>
           )}
@@ -113,11 +190,33 @@ export default function Login({ onLogin }: LoginProps) {
           <button
             onClick={handleLogin}
             disabled={!selectedUser || !password || isLoading}
-            className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            style={{
+              width: '100%',
+              backgroundColor: '#059669',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: !selectedUser || !password || isLoading ? 'not-allowed' : 'pointer',
+              opacity: !selectedUser || !password || isLoading ? 0.5 : 1,
+              transition: 'background-color 0.2s'
+            }}
           >
             {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  animation: 'spin 1s linear infinite',
+                  borderRadius: '50%',
+                  height: '16px',
+                  width: '16px',
+                  border: '2px solid transparent',
+                  borderTopColor: 'white',
+                  marginRight: '8px'
+                }}></div>
                 Entrando...
               </div>
             ) : (
@@ -126,9 +225,14 @@ export default function Login({ onLogin }: LoginProps) {
           </button>
         </div>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div style={{
+          marginTop: '24px',
+          textAlign: 'center',
+          fontSize: '14px',
+          color: 'var(--text-secondary)'
+        }}>
           <p>Senha inicial para todos os usuários: <strong>senha</strong></p>
-          <p className="mt-1">Você será solicitado a alterá-la após o primeiro login</p>
+          <p style={{ marginTop: '4px' }}>Você será solicitado a alterá-la após o primeiro login</p>
         </div>
       </div>
     </div>

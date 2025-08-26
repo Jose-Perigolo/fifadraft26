@@ -1,6 +1,7 @@
 'use client';
 
 import { Player } from '@/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface PlayerCardProps {
   player: Player;
@@ -17,6 +18,7 @@ export default function PlayerCard({
   isDisabled = false,
   showStats = true 
 }: PlayerCardProps) {
+  const { theme } = useTheme();
   const handleClick = () => {
     if (!isDisabled && onSelect) {
       onSelect(player);
@@ -61,12 +63,12 @@ export default function PlayerCard({
   return (
     <div
       onClick={handleClick}
-      className={`relative bg-white rounded-lg shadow-md border-2 transition-all cursor-pointer ${
+      className={`relative rounded-lg shadow-md border-2 transition-all cursor-pointer ${
         isSelected 
-          ? 'border-green-500 bg-green-50' 
+          ? `${theme === 'dark' ? 'border-green-400 bg-green-900' : 'border-green-500 bg-green-50'}` 
           : isDisabled 
-            ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' 
-            : 'border-gray-200 hover:border-green-300 hover:shadow-lg'
+            ? `${theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-gray-50'} cursor-not-allowed opacity-60` 
+            : `${theme === 'dark' ? 'border-gray-600 bg-gray-800 hover:border-green-400' : 'border-gray-200 bg-white hover:border-green-300'} hover:shadow-lg`
       }`}
     >
 
@@ -75,12 +77,12 @@ export default function PlayerCard({
       <div className="p-4">
         <div className="mb-3">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-lg text-gray-900">{player.name}</h3>
+            <h3 className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.name}</h3>
             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${getOverallColor(player.overall)}`}>
               {player.overall}
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-700">
+          <div className={`flex items-center gap-2 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
             <span className={`px-2 py-1 rounded text-xs font-medium text-white ${getPositionColor(player.position)}`}>
               {player.position}
             </span>
@@ -88,18 +90,18 @@ export default function PlayerCard({
           </div>
         </div>
 
-        <div className="space-y-1 text-sm text-gray-700">
+        <div className={`space-y-1 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
           <div className="flex justify-between">
-            <span className="text-gray-600">Team:</span>
-            <span className="font-medium text-gray-900 text-right">{player.team}</span>
+            <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Team:</span>
+            <span className={`font-medium text-right ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.team}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Nation:</span>
-            <span className="font-medium text-gray-900 text-right">{player.nation}</span>
+            <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Nation:</span>
+            <span className={`font-medium text-right ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.nation}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">League:</span>
-            <span className="font-medium text-gray-900 text-right">{player.league}</span>
+            <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>League:</span>
+            <span className={`font-medium text-right ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.league}</span>
           </div>
         </div>
 
@@ -108,36 +110,36 @@ export default function PlayerCard({
           <div className="mt-3 space-y-1">
             <div className="grid grid-cols-2 gap-1 text-xs">
               <div className="flex justify-between">
-                <span className="text-gray-600">PAC:</span>
-                <span className="font-medium text-gray-900">{player.pace}</span>
+                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>PAC:</span>
+                <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.pace}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">SHO:</span>
-                <span className="font-medium text-gray-900">{player.shooting}</span>
+                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>SHO:</span>
+                <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.shooting}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">PAS:</span>
-                <span className="font-medium text-gray-900">{player.passing}</span>
+                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>PAS:</span>
+                <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.passing}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">DRI:</span>
-                <span className="font-medium text-gray-900">{player.dribbling}</span>
+                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>DRI:</span>
+                <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.dribbling}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">DEF:</span>
-                <span className="font-medium text-gray-900">{player.defending}</span>
+                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>DEF:</span>
+                <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.defending}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">PHY:</span>
-                <span className="font-medium text-gray-900">{player.physical}</span>
+                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>PHY:</span>
+                <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.physical}</span>
               </div>
             </div>
           </div>
         )}
 
         {/* Physical Attributes */}
-        <div className="mt-2 pt-2 border-t border-gray-200">
-          <div className="flex justify-between text-xs text-gray-600">
+        <div className={`mt-2 pt-2 border-t ${theme === 'dark' ? 'border-gray-600' : 'border-gray-200'}`}>
+          <div className={`flex justify-between text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
             <span className="font-medium">{player.height}</span>
             <span className="font-medium">{player.weight}</span>
           </div>
