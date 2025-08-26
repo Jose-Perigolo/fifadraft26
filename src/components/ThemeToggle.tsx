@@ -31,7 +31,11 @@ export default function ThemeToggle() {
       {/* Toggle Button */}
       <button
         onClick={toggleTheme}
-        className="p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600"
+        className="p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+        style={{
+          backgroundColor: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)'
+        }}
         title={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
       >
         {theme === 'light' ? (

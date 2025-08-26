@@ -131,7 +131,12 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
           justifyContent: 'center'
         }}>
           <div className="text-center text-white">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <img 
+              src="/ball.svg" 
+              alt="Loading" 
+              className="animate-spin h-12 w-12 mx-auto mb-4"
+              style={{ filter: 'invert(1)' }}
+            />
             <p>Inicializando FIFA Draft 2026...</p>
           </div>
         </div>
