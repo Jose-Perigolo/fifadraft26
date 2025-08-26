@@ -62,12 +62,21 @@ export async function POST() {
     
     // Update pickOrder with correct user IDs
     const pickOrderUserIds = sortedUsers.map(user => user!.id);
+    
+    // Calculate correct round based on picks made
+    const picksCount = draft.picks.length;
+    const participantsCount = sortedUsers.length;
+    const correctRound = Math.floor(picksCount / participantsCount) + 1;
+    const correctTurn = picksCount % participantsCount;
+    
+    console.log(`📊 Picks: ${picksCount}, Round: ${correctRound}, Turn: ${correctTurn}`);
+    
     await prisma.draft.update({
       where: { id: draft.id },
       data: {
         pickOrder: pickOrderUserIds,
-        currentTurn: 0, // Reset to Jamal's turn
-        round: 1,
+        currentTurn: correctTurn,
+        round: correctRound,
         isComplete: false
       }
     });
