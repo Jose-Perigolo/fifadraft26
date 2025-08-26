@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Draft, User, FormationPosition, Player } from '@/types';
 import { getCurrentUser, getDraftProgress, getRoundDirection } from '@/utils/draft';
+import { formatTimer, getTimeSince } from '@/utils/time';
 import FootballField from './FootballField';
 import PlayerCard from './PlayerCard';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -19,6 +20,7 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
   const [formation, setFormation] = useState('4-4-2');
   const [positions, setPositions] = useState<FormationPosition[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [turnTimer, setTurnTimer] = useState(0);
 
   // Load formation when switching to team view
   useEffect(() => {
@@ -65,6 +67,17 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
     }
   }, [viewMode, draft, currentUser.id]);
 
+  // Timer logic for time since last pick
+  useEffect(() => {
+    if (!draft || draft.isComplete) return;
+
+    const interval = setInterval(() => {
+      setTurnTimer(getTimeSinceLastPick());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [draft]);
+
   if (!draft) {
     return (
       <div className={`rounded-lg shadow-lg p-6 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
@@ -84,6 +97,26 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
     ?.filter(pick => pick.userId === currentUser.id)
     .map(pick => pick.player)
     .filter((player): player is Player => player !== null && player !== undefined) || [];
+
+  // Calculate time since last pick
+  const getTimeSinceLastPick = () => {
+    if (!draft.picks || draft.picks.length === 0) {
+      return 0;
+    }
+    
+    // Find the most recent pick
+    const lastPick = draft.picks.reduce((latest, pick) => {
+      if (!latest || !pick.createdAt) return pick;
+      if (!latest.createdAt) return latest;
+      return new Date(pick.createdAt) > new Date(latest.createdAt) ? pick : latest;
+    });
+    
+    if (!lastPick || !lastPick.createdAt) {
+      return 0;
+    }
+    
+    return getTimeSince(new Date(lastPick.createdAt));
+  };
 
   // Group players by position and sort by rating for the picks view
   const groupedPlayers = userPlayers.reduce((acc, player) => {
@@ -232,6 +265,11 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
                   <div className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                     {currentTurnUser ? currentTurnUser.name : "Draft Concluído"}
                   </div>
+                  {currentTurnUser && !draft.isComplete && (
+                    <div className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Tempo aguardando escolha: {formatTimer(turnTimer)}
+                    </div>
+                  )}
                 </div>
                 {isUserTurn && (
                   <div className="text-green-400 font-semibold">
