@@ -15,7 +15,7 @@ interface DraftBoardProps {
 
 export default function DraftBoard({ draft, currentUser, onFormationUpdate }: DraftBoardProps) {
   const { theme } = useTheme();
-  const [viewMode, setViewMode] = useState<'draft' | 'team'>('draft');
+  const [viewMode, setViewMode] = useState<'draft' | 'team' | 'picks'>('draft');
   const [formation, setFormation] = useState('4-4-2');
   const [positions, setPositions] = useState<FormationPosition[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -84,6 +84,29 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
     ?.filter(pick => pick.userId === currentUser.id)
     .map(pick => pick.player)
     .filter((player): player is Player => player !== null && player !== undefined) || [];
+
+  // Group players by position and sort by rating for the picks view
+  const groupedPlayers = userPlayers.reduce((acc, player) => {
+    const position = player.position;
+    if (!acc[position]) {
+      acc[position] = [];
+    }
+    acc[position].push(player);
+    return acc;
+  }, {} as { [key: string]: Player[] });
+
+  // Sort players within each position by rating (descending)
+  Object.keys(groupedPlayers).forEach(position => {
+    groupedPlayers[position].sort((a, b) => b.overall - a.overall);
+  });
+
+  // Sort positions in a logical order
+  const positionOrder = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'ST', 'CF'];
+  const sortedPositions = Object.keys(groupedPlayers).sort((a, b) => {
+    const aIndex = positionOrder.indexOf(a);
+    const bIndex = positionOrder.indexOf(b);
+    return aIndex - bIndex;
+  });
 
   const handleFormationUpdate = async (newFormation: string, newPositions: FormationPosition[]) => {
     setFormation(newFormation);
@@ -162,10 +185,20 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
           >
             Meu Time
           </button>
+          <button
+            onClick={() => setViewMode('picks')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              viewMode === 'picks'
+                ? `${theme === 'dark' ? 'bg-gray-600 text-white' : 'bg-white text-gray-900'} shadow-sm`
+                : `${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`
+            }`}
+          >
+            Meus Picks
+          </button>
         </div>
       </div>
 
-      {viewMode === 'draft' ? (
+      {viewMode === 'draft' && (
         <>
           {/* Header */}
           <div className="mb-6">
@@ -278,7 +311,9 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
             </div>
           )}
         </>
-      ) : (
+      )}
+
+      {viewMode === 'team' && (
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Formação do Meu Time</h2>
@@ -295,6 +330,96 @@ export default function DraftBoard({ draft, currentUser, onFormationUpdate }: Dr
             positions={positions}
             onPositionUpdate={handleFormationUpdate}
           />
+        </div>
+      )}
+
+      {viewMode === 'picks' && (
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Meus Picks</h2>
+            <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              {userPlayers.length}/16 jogadores
+            </div>
+          </div>
+          
+          {userPlayers.length === 0 ? (
+            <div className={`text-center py-12 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p className="text-lg">Nenhum jogador selecionado ainda</p>
+              <p className="text-sm mt-2">Seus picks aparecerão aqui quando você fizer suas escolhas</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {sortedPositions.map(position => (
+                <div key={position} className={`rounded-lg border ${theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`px-4 py-3 border-b ${theme === 'dark' ? 'border-gray-600' : 'border-gray-200'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full ${getPositionColor(position)}`}></div>
+                      <h3 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {position} ({groupedPlayers[position].length})
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className={`border-b ${theme === 'dark' ? 'border-gray-600' : 'border-gray-200'}`}>
+                          <th className={`px-4 py-3 text-left text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Jogador</th>
+                          <th className={`px-4 py-3 text-left text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Clube</th>
+                          <th className={`px-4 py-3 text-left text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Posição</th>
+                          <th className={`px-4 py-3 text-center text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Rating</th>
+                          <th className={`px-4 py-3 text-center text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Pace</th>
+                          <th className={`px-4 py-3 text-center text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Shooting</th>
+                          <th className={`px-4 py-3 text-center text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Passing</th>
+                          <th className={`px-4 py-3 text-center text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Dribbling</th>
+                          <th className={`px-4 py-3 text-center text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Defending</th>
+                          <th className={`px-4 py-3 text-center text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Physical</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {groupedPlayers[position].map((player) => (
+                          <tr 
+                            key={player.id} 
+                            className={`border-b ${theme === 'dark' ? 'border-gray-600 hover:bg-gray-600' : 'border-gray-200 hover:bg-gray-100'} transition-colors`}
+                          >
+                            <td className={`px-4 py-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                              <div className="font-medium">{player.name}</div>
+                            </td>
+                            <td className={`px-4 py-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.team}
+                            </td>
+                            <td className={`px-4 py-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.position}
+                            </td>
+                            <td className={`px-4 py-3 text-center font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                              {player.overall}
+                            </td>
+                            <td className={`px-4 py-3 text-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.pace}
+                            </td>
+                            <td className={`px-4 py-3 text-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.shooting}
+                            </td>
+                            <td className={`px-4 py-3 text-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.passing}
+                            </td>
+                            <td className={`px-4 py-3 text-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.dribbling}
+                            </td>
+                            <td className={`px-4 py-3 text-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.defending}
+                            </td>
+                            <td className={`px-4 py-3 text-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {player.physical}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

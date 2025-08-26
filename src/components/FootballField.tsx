@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Player, FormationPosition } from '@/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface FootballFieldProps {
   userPlayers: Player[];
@@ -106,6 +107,9 @@ const getPositionColor = (position: string) => {
 export default function FootballField({ userPlayers, formation, positions, onPositionUpdate }: FootballFieldProps) {
   const [draggedPlayer, setDraggedPlayer] = useState<Player | null>(null);
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
+  
+  // Get theme from context
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Filter out players that are already positioned
@@ -181,7 +185,7 @@ export default function FootballField({ userPlayers, formation, positions, onPos
     <div className="space-y-6">
       {/* Formation Selector */}
       <div className="flex items-center gap-4">
-        <label className="text-sm font-medium text-gray-700">Formação:</label>
+        <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Formação:</label>
         <select
           value={formation}
           onChange={(e) => {
@@ -192,7 +196,11 @@ export default function FootballField({ userPlayers, formation, positions, onPos
             }));
             onPositionUpdate(newFormation, newPositions);
           }}
-          className="px-3 py-1 border border-gray-300 rounded-md text-gray-900"
+          className={`px-3 py-1 border rounded-md ${
+            theme === 'dark' 
+              ? 'border-gray-600 bg-gray-700 text-white' 
+              : 'border-gray-300 text-gray-900'
+          }`}
         >
           <option value="4-4-2">4-4-2</option>
           <option value="4-3-3">4-3-3</option>
@@ -269,23 +277,27 @@ export default function FootballField({ userPlayers, formation, positions, onPos
 
       {/* Available Players */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Jogadores Disponíveis</h3>
+        <h3 className={`text-lg font-semibold mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Jogadores Disponíveis</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {availablePlayers.map((player) => (
             <div
               key={player.id}
               draggable
               onDragStart={() => handlePlayerDragStart(player)}
-              className="bg-white rounded-lg shadow-md border-2 border-gray-200 p-3 cursor-move hover:border-green-300 transition-colors"
+              className={`rounded-lg shadow-md border-2 p-3 cursor-move transition-colors ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 hover:border-green-400'
+                  : 'bg-white border-gray-200 hover:border-green-300'
+              }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${getPositionColor(player.position)}`}>
                   {player.overall}
                 </div>
-                <span className="text-xs text-gray-600">{player.position}</span>
+                <span className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{player.position}</span>
               </div>
-              <div className="text-sm font-medium text-gray-900 truncate">{player.name}</div>
-              <div className="text-xs text-gray-600">{player.team}</div>
+              <div className={`text-sm font-medium truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{player.name}</div>
+              <div className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{player.team}</div>
             </div>
           ))}
         </div>
