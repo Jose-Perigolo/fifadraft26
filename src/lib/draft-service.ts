@@ -46,6 +46,18 @@ export async function getUserByName(name: string): Promise<User | null> {
   }
 }
 
+export async function getUserById(id: string): Promise<User | null> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    return user as User | null;
+  } catch (error) {
+    console.error('Error getting user by ID:', error);
+    return null;
+  }
+}
+
 export async function updateUserPassword(userId: string, newPassword: string): Promise<User> {
   try {
     const user = await prisma.user.update({
