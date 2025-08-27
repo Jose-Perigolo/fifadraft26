@@ -55,6 +55,30 @@ export const sortPlayers = (players: Player[], sortBy: string): Player[] => {
       return sorted.sort((a, b) => a.age - b.age);
     case 'age-desc':
       return sorted.sort((a, b) => b.age - a.age);
+    case 'pace-desc':
+      return sorted.sort((a, b) => b.pace - a.pace);
+    case 'pace-asc':
+      return sorted.sort((a, b) => a.pace - b.pace);
+    case 'shooting-desc':
+      return sorted.sort((a, b) => b.shooting - a.shooting);
+    case 'shooting-asc':
+      return sorted.sort((a, b) => a.shooting - b.shooting);
+    case 'passing-desc':
+      return sorted.sort((a, b) => b.passing - a.passing);
+    case 'passing-asc':
+      return sorted.sort((a, b) => a.passing - b.passing);
+    case 'dribbling-desc':
+      return sorted.sort((a, b) => b.dribbling - a.dribbling);
+    case 'dribbling-asc':
+      return sorted.sort((a, b) => a.dribbling - b.dribbling);
+    case 'defending-desc':
+      return sorted.sort((a, b) => b.defending - a.defending);
+    case 'defending-asc':
+      return sorted.sort((a, b) => a.defending - b.defending);
+    case 'physical-desc':
+      return sorted.sort((a, b) => b.physical - a.physical);
+    case 'physical-asc':
+      return sorted.sort((a, b) => a.physical - b.physical);
     default:
       return sorted;
   }
