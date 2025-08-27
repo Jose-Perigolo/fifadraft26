@@ -6,6 +6,7 @@ import { canUserPick } from '@/utils/draft';
 import { loadPlayers } from '@/utils/players';
 import DraftBoard from './DraftBoard';
 import PlayerSelection from './PlayerSelection';
+import PickConfirmationModal from './PickConfirmationModal';
 import ThemeToggle from './ThemeToggle';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -21,6 +22,9 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -74,11 +78,21 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
     loadData();
   }, []);
 
-  const handlePlayerSelect = async (player: Player) => {
+  const handlePlayerSelect = (player: Player) => {
     if (!draft || !canUserPick(draft, currentUser.id)) {
       return;
     }
 
+    setSelectedPlayer(player);
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmPick = async () => {
+    if (!draft || !selectedPlayer) {
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       const response = await fetch('/api/draft', {
         method: 'PUT',
@@ -88,7 +102,7 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
         body: JSON.stringify({
           draftId: draft.id,
           userId: currentUser.id,
-          playerId: player.id,
+          playerId: selectedPlayer.id,
         }),
       });
 
@@ -103,6 +117,8 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
           })) || [],
         };
         setDraft(draftWithPlayers);
+        setShowConfirmation(false);
+        setSelectedPlayer(null);
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Failed to make pick');
@@ -110,7 +126,14 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
     } catch (error) {
       console.error('Error making pick:', error);
       alert('Failed to make pick. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleCancelPick = () => {
+    setShowConfirmation(false);
+    setSelectedPlayer(null);
   };
 
   const handleLogout = () => {
@@ -298,6 +321,15 @@ export default function DraftPage({ currentUser, onLogout }: DraftPageProps) {
           </div>
         )}
       </main>
+
+      {/* Pick Confirmation Modal */}
+      <PickConfirmationModal
+        isOpen={showConfirmation}
+        selectedPlayer={selectedPlayer}
+        onConfirm={handleConfirmPick}
+        onCancel={handleCancelPick}
+        isSubmitting={isSubmitting}
+      />
       </div>
     </>
   );
